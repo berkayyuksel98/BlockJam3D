@@ -8,7 +8,7 @@ public enum CharacterType
     Pipe
 }
 
-public class CharacterFactory : MonoBehaviour
+public class CharacterFactory : Singleton<CharacterFactory>
 {
     [Header("Character Data")]
     public List<CharacterSO> characterSOs;
@@ -19,10 +19,7 @@ public class CharacterFactory : MonoBehaviour
     {
         InitializeCharacterPools();
     }
-    
-    /// <summary>
-    /// Karakter pool'larını PoolingManager'e ekler
-    /// </summary>
+
     private void InitializeCharacterPools()
     {
         foreach (var characterSO in characterSOs)
@@ -45,59 +42,58 @@ public class CharacterFactory : MonoBehaviour
         
         Debug.Log($"CharacterFactory initialized {characterSOs.Count} character pools");
     }
-    
-    /// <summary>
-    /// Karakter oluşturur
-    /// </summary>
-    public GameObject CreateCharacter(CharacterType characterType, Vector3 position, Quaternion rotation)
+
+    public GameObject CreateCharacter(CharacterInstanceData instanceData, Vector3 position, Quaternion rotation)
     {
-        string poolKey = GetPoolKey(characterType);
-        GameObject character = PoolingManager.Instance.Get(poolKey, position, rotation);
-        
-        if (character != null)
+        if (instanceData is SimpleCharacterData)
         {
-            // Karaktere özel component'i ekle/güncelle
-            var characterComponent = character.GetComponent<PoolableCharacter>();
-            if (characterComponent == null)
-            {
-                characterComponent = character.AddComponent<PoolableCharacter>();
-            }
-            characterComponent.Initialize(characterType, this);
+            return CreateSimpleCharacter((SimpleCharacterData)instanceData, position, rotation);
         }
-        
+        else if (instanceData is BarrelData)
+        {
+            return CreateBarrelCharacter((BarrelData)instanceData, position, rotation);
+        }
+        else if (instanceData is PipeData)
+        {
+            return CreatePipeCharacter((PipeData)instanceData, position, rotation);
+        }
+        else
+        {
+            Debug.LogError("Unknown CharacterInstanceData type");
+            return null;
+        }
+    }
+
+    private GameObject CreateSimpleCharacter(SimpleCharacterData data, Vector3 position, Quaternion rotation)
+    {
+        string poolKey = GetPoolKey(CharacterType.Simple);
+        GameObject character = PoolingManager.Instance.Get(poolKey, position, rotation);
+        character.GetComponent<SimpleCharacter>().Initialize(data.characterColorType);
         return character;
     }
-    
-    /// <summary>
-    /// Karakteri pool'a geri döndürür
-    /// </summary>
+    private GameObject CreateBarrelCharacter(BarrelData data, Vector3 position, Quaternion rotation)
+    {
+        string poolKey = GetPoolKey(CharacterType.Barrel);
+        GameObject character = PoolingManager.Instance.Get(poolKey, position, rotation);
+        character.GetComponent<BarrelCharacter>().Initialize(data.characterColorType);
+        return character;
+    }
+    private GameObject CreatePipeCharacter(PipeData data, Vector3 position, Quaternion rotation)
+    {
+        string poolKey = GetPoolKey(CharacterType.Pipe);
+        GameObject character = PoolingManager.Instance.Get(poolKey, position, rotation);
+        character.GetComponent<PipeCharacter>().Initialize(data.characterColorTypes);
+        return character;
+    }
+
     public void ReturnCharacter(GameObject character)
     {
         PoolingManager.Instance.Release(character);
     }
-    
-    /// <summary>
-    /// CharacterType'dan pool key'i oluşturur
-    /// </summary>
+
     private string GetPoolKey(CharacterType characterType)
     {
         return $"Character_{characterType}";
     }
-    
-    /// <summary>
-    /// Pool istatistikleri
-    /// </summary>
-    [ContextMenu("Print Character Pool Stats")]
-    private void PrintPoolStats()
-    {
-        foreach (var characterSO in characterSOs)
-        {
-            if (characterSO != null)
-            {
-                string poolKey = GetPoolKey(characterSO.characterType);
-                PoolingManager.Instance.GetPoolStats(poolKey, out int active, out int inactive);
-                Debug.Log($"{characterSO.characterType}: Active={active}, Inactive={inactive}");
-            }
-        }
-    }
+
 }

@@ -7,352 +7,364 @@ public class LevelInformationEditor : Editor
 {
     private LevelInformation levelInfo;
     private Vector2 scrollPosition;
-
-    // Selection
-    private int selectedObjectType = 0;
-    private ColorType selectedColor = ColorType.Red;
-    private List<LevelObjectDataSimpleCharacter> pipeCharacters = new List<LevelObjectDataSimpleCharacter>();
-
-    // Grid resize
-    private Vector2Int newGridSize = new Vector2Int(10, 10);
-
-    // Visual
     private GUIStyle cellButtonStyle;
-    private readonly Color[] colorTypeColors = new Color[]
-    {
+    
+    // Selection tools
+    private int selectedTool = 0; // 0: Empty, 1: Simple, 2: Barrel, 3: Pipe
+    private ColorType selectedColor = ColorType.Red;
+    private PipeDirection selectedPipeDirection = PipeDirection.Forward;
+    private List<ColorType> pipeColors = new List<ColorType>();
+    
+    // Color mapping
+    private readonly Color[] colorMap = {
         Color.red,      // Red
-        Color.green,    // Green  
+        Color.green,    // Green
         Color.blue,     // Blue
         Color.yellow,   // Yellow
         new Color(1f, 0f, 1f), // Purple
         new Color(1f, 0.5f, 0f) // Orange
     };
-
+    
     private void OnEnable()
     {
         levelInfo = (LevelInformation)target;
-        newGridSize = new Vector2Int(levelInfo.GridWidth, levelInfo.GridHeight);
-        InitializePipeCharacters();
+        pipeColors.Add(ColorType.Red);
     }
-
+    
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-
-        // Basic level info
-        DrawBasicInfo();
-
+        
+        // Header
+        EditorGUILayout.LabelField("Level Information Editor", EditorStyles.boldLabel);
+        EditorGUILayout.Space(5);
+        
+        // Default inspector for basic fields
+        DrawDefaultInspector();
+        
         EditorGUILayout.Space(10);
-
-        // Grid controls
+        
+        // Grid Controls
         DrawGridControls();
-
+        
         EditorGUILayout.Space(10);
-
-        // Object selection
-        DrawObjectSelection();
-
+        
+        // Tool Selection
+        DrawToolSelection();
+        
         EditorGUILayout.Space(10);
-
-        // Grid visualization
-        DrawGridVisualization();
-
+        
+        // Visual Grid Editor
+        DrawVisualGridEditor();
+        
         EditorGUILayout.Space(10);
-
-        // Level statistics
+        
+        // Level Statistics
         DrawLevelStats();
-
+        
+        EditorGUILayout.Space(10);
+        
+        // Utility Buttons
+        DrawUtilityButtons();
+        
         serializedObject.ApplyModifiedProperties();
     }
-
-    private void DrawBasicInfo()
-    {
-        EditorGUILayout.LabelField("Level Information", EditorStyles.boldLabel);
-
-        levelInfo.levelName = EditorGUILayout.TextField("Level Name", levelInfo.levelName);
-        levelInfo.levelDescription = EditorGUILayout.TextField("Description", levelInfo.levelDescription);
-        levelInfo.levelIndex = EditorGUILayout.IntField("Level Index", levelInfo.levelIndex);
-        levelInfo.cellSize = EditorGUILayout.FloatField("Cell Size", levelInfo.cellSize);
-    }
-
+    
     private void DrawGridControls()
     {
         EditorGUILayout.LabelField("Grid Controls", EditorStyles.boldLabel);
-
-        EditorGUILayout.BeginHorizontal();
+        
         EditorGUILayout.LabelField($"Current Size: {levelInfo.GridWidth} x {levelInfo.GridHeight}");
-        EditorGUILayout.EndHorizontal();
-
+        
         EditorGUILayout.Space(5);
-
+        
+        // Quick size buttons
         EditorGUILayout.BeginHorizontal();
-        newGridSize = EditorGUILayout.Vector2IntField("New Grid Size:", newGridSize);
-
-        if (GUILayout.Button("Resize", GUILayout.Width(80)))
+        
+        if (GUILayout.Button("5x5"))
+            SetGridSize(5, 5);
+        if (GUILayout.Button("8x8"))
+            SetGridSize(8, 8);
+        if (GUILayout.Button("10x10"))
+            SetGridSize(10, 10);
+        if (GUILayout.Button("12x8"))
+            SetGridSize(12, 8);
+            
+        EditorGUILayout.EndHorizontal();
+    }
+    
+    private void DrawLevelStats()
+    {
+        EditorGUILayout.LabelField("Level Statistics", EditorStyles.boldLabel);
+        
+        int simpleCount = 0;
+        int pipeCount = 0;
+        int barrelCount = 0;
+        int totalObjects = 0;
+        
+        // Count objects
+        for (int x = 0; x < levelInfo.GridWidth; x++)
         {
-            if (newGridSize.x > 0 && newGridSize.y > 0)
+            for (int y = 0; y < levelInfo.GridHeight; y++)
             {
-                levelInfo.SetGridSize(newGridSize.x, newGridSize.y);
-                EditorUtility.SetDirty(levelInfo);
-            }
-            else
-            {
-                EditorUtility.DisplayDialog("Error", "Grid size must be positive values!", "OK");
+                var instanceData = levelInfo.GetObjectAtPosition(new Vector2Int(x, y));
+                if (instanceData != null)
+                {
+                    totalObjects++;
+                    if (instanceData is SimpleCharacterData)
+                        simpleCount++;
+                    else if (instanceData is PipeData)
+                        pipeCount++;
+                    else if (instanceData is BarrelData)
+                        barrelCount++;
+                }
             }
         }
-        EditorGUILayout.EndHorizontal();
-
+        
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        EditorGUILayout.LabelField($"Grid: {levelInfo.GridWidth} x {levelInfo.GridHeight}");
+        EditorGUILayout.LabelField($"Total Objects: {totalObjects}");
+        EditorGUILayout.LabelField($"Simple: {simpleCount}");
+        EditorGUILayout.LabelField($"Pipes: {pipeCount}");
+        EditorGUILayout.LabelField($"Barrels: {barrelCount}");
+        EditorGUILayout.LabelField($"Empty Cells: {(levelInfo.GridWidth * levelInfo.GridHeight) - totalObjects}");
+        EditorGUILayout.EndVertical();
+    }
+    
+    private void DrawUtilityButtons()
+    {
+        EditorGUILayout.LabelField("Utilities", EditorStyles.boldLabel);
+        
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("5x5", GUILayout.Width(50))) SetGridSize(5, 5);
-        if (GUILayout.Button("8x8", GUILayout.Width(50))) SetGridSize(8, 8);
-        if (GUILayout.Button("10x10", GUILayout.Width(50))) SetGridSize(10, 10);
-        if (GUILayout.Button("12x8", GUILayout.Width(50))) SetGridSize(12, 8);
-
-        GUILayout.FlexibleSpace();
-
-        if (GUILayout.Button("Clear All", GUILayout.Width(80)))
+        
+        if (GUILayout.Button("Clear All Objects"))
         {
-            if (EditorUtility.DisplayDialog("Clear All Objects",
-                "Are you sure you want to clear all objects from the level?", "Yes", "Cancel"))
+            if (EditorUtility.DisplayDialog("Clear All", 
+                "Clear all objects from level?", "Yes", "Cancel"))
             {
                 levelInfo.ClearAllObjects();
                 EditorUtility.SetDirty(levelInfo);
             }
         }
+        
+        if (GUILayout.Button("Validate Level"))
+        {
+            var (isValid, errors) = levelInfo.ValidateLevel();
+            if (isValid)
+            {
+                EditorUtility.DisplayDialog("Validation", "Level is valid!", "OK");
+            }
+            else
+            {
+                string errorMsg = string.Join("\n", errors);
+                EditorUtility.DisplayDialog("Validation Failed", errorMsg, "OK");
+            }
+        }
+        
         EditorGUILayout.EndHorizontal();
     }
-
-    private void DrawObjectSelection()
+    
+    private void DrawToolSelection()
     {
-        EditorGUILayout.LabelField("Object Selection", EditorStyles.boldLabel);
-
-        string[] objectTypes = { "Empty", "Simple Character", "Pipe", "Barrel" };
-        selectedObjectType = GUILayout.SelectionGrid(selectedObjectType, objectTypes, 3);
-
+        EditorGUILayout.LabelField("Tool Selection", EditorStyles.boldLabel);
+        
+        string[] tools = { "Empty", "Simple Character", "Barrel", "Pipe" };
+        selectedTool = GUILayout.SelectionGrid(selectedTool, tools, 4);
+        
         EditorGUILayout.Space(5);
-
-        // Type specific options
-        switch (selectedObjectType)
+        
+        // Tool-specific options
+        switch (selectedTool)
         {
             case 1: // Simple Character
                 EditorGUILayout.LabelField("Character Color:");
                 selectedColor = (ColorType)EditorGUILayout.EnumPopup(selectedColor);
-
+                
                 // Color preview
                 Rect colorRect = GUILayoutUtility.GetRect(50, 20);
-                EditorGUI.DrawRect(colorRect, colorTypeColors[(int)selectedColor]);
+                EditorGUI.DrawRect(colorRect, GetColorFromType(selectedColor));
                 break;
-
-            case 2: // Pipe
-                EditorGUILayout.LabelField("Pipe Characters:");
-                DrawPipeCharactersList();
+                
+            case 2: // Barrel
+                EditorGUILayout.LabelField("Barrel Color:");
+                selectedColor = (ColorType)EditorGUILayout.EnumPopup(selectedColor);
+                
+                // Color preview
+                Rect barrelColorRect = GUILayoutUtility.GetRect(50, 20);
+                EditorGUI.DrawRect(barrelColorRect, GetColorFromType(selectedColor));
                 break;
-            case 3: //Barrel
-                EditorGUILayout.LabelField("Barrel Settings:");
-                DrawBarrelCharacterColor();
+                
+            case 3: // Pipe
+                EditorGUILayout.LabelField("Pipe Settings:");
+                selectedPipeDirection = (PipeDirection)EditorGUILayout.EnumPopup("Direction:", selectedPipeDirection);
+                
+                EditorGUILayout.LabelField("Pipe Colors:");
+                DrawPipeColorList();
                 break;
         }
     }
-
-    private void DrawPipeCharactersList()
+    
+    private void DrawPipeColorList()
     {
         EditorGUILayout.BeginVertical(GUI.skin.box);
-
-        // Add character button
+        
+        // Add color button
         EditorGUILayout.BeginHorizontal();
         ColorType newColor = (ColorType)EditorGUILayout.EnumPopup("Add Color:", ColorType.Red);
         if (GUILayout.Button("Add", GUILayout.Width(50)))
         {
-            var newChar = new LevelObjectDataSimpleCharacter();
-            newChar.colorType = newColor;
-            pipeCharacters.Add(newChar);
+            pipeColors.Add(newColor);
         }
         EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.Space(5);
-
-        // Character list
-        for (int i = 0; i < pipeCharacters.Count; i++)
+        
+        // Color list
+        for (int i = 0; i < pipeColors.Count; i++)
         {
             EditorGUILayout.BeginHorizontal();
-
+            
             // Color preview
             Rect colorRect = GUILayoutUtility.GetRect(20, 20);
-            EditorGUI.DrawRect(colorRect, colorTypeColors[(int)pipeCharacters[i].colorType]);
-
-            // Color selection
-            pipeCharacters[i].colorType = (ColorType)EditorGUILayout.EnumPopup(pipeCharacters[i].colorType);
-
-            // Remove button
+            EditorGUI.DrawRect(colorRect, GetColorFromType(pipeColors[i]));
+            
+            pipeColors[i] = (ColorType)EditorGUILayout.EnumPopup(pipeColors[i]);
+            
             if (GUILayout.Button("X", GUILayout.Width(25)))
             {
-                pipeCharacters.RemoveAt(i);
+                pipeColors.RemoveAt(i);
                 i--;
             }
-
+            
             EditorGUILayout.EndHorizontal();
         }
-
+        
+        if (GUILayout.Button("Clear All"))
+        {
+            pipeColors.Clear();
+        }
+        
         EditorGUILayout.EndVertical();
     }
-
-    private void DrawBarrelCharacterColor()
+    
+    private void DrawVisualGridEditor()
     {
-        EditorGUILayout.LabelField("Character Color:");
-        selectedColor = (ColorType)EditorGUILayout.EnumPopup(selectedColor);
-
-        // Color preview
-        Rect colorRect = GUILayoutUtility.GetRect(50, 20);
-        EditorGUI.DrawRect(colorRect, colorTypeColors[(int)selectedColor]);
-    }
-
-    private void DrawGridVisualization()
-    {
-        EditorGUILayout.LabelField("Level Grid", EditorStyles.boldLabel);
-
+        EditorGUILayout.LabelField("Visual Grid Editor", EditorStyles.boldLabel);
+        
+        if (levelInfo.GridWidth <= 0 || levelInfo.GridHeight <= 0)
+        {
+            EditorGUILayout.HelpBox("Set a valid grid size first!", MessageType.Warning);
+            return;
+        }
+        
         InitializeCellButtonStyle();
-
-        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(400));
-
-        // Draw grid
-        for (int y = levelInfo.GridHeight - 1; y >= 0; y--) // Top to bottom
+        
+        // Calculate scroll area height
+        float cellSize = 35f;
+        float maxHeight = Mathf.Min(cellSize * levelInfo.GridHeight + 20, 400f);
+        
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(maxHeight));
+        
+        // Draw grid (top to bottom)
+        for (int y = levelInfo.GridHeight - 1; y >= 0; y--)
         {
             EditorGUILayout.BeginHorizontal();
-
+            
             for (int x = 0; x < levelInfo.GridWidth; x++)
             {
                 Vector2Int position = new Vector2Int(x, y);
                 DrawGridCell(position);
             }
-
+            
             EditorGUILayout.EndHorizontal();
         }
-
+        
         EditorGUILayout.EndScrollView();
     }
-
+    
     private void DrawGridCell(Vector2Int position)
     {
-        LevelObjectData objectData = levelInfo.GetObjectAtPosition(position);
-
-        // Determine cell content and color
-        string cellText = GetCellDisplayText(objectData);
-        Color cellColor = GetCellDisplayColor(objectData);
-
-        // Set button style color
+        CharacterInstanceData instanceData = levelInfo.GetObjectAtPosition(position);
+        
+        string cellText = GetCellText(instanceData);
+        Color cellColor = GetCellColor(instanceData);
+        
         var originalColor = GUI.backgroundColor;
         GUI.backgroundColor = cellColor;
-
-        // Cell button
-        if (GUILayout.Button(cellText, cellButtonStyle, GUILayout.Width(40), GUILayout.Height(40)))
+        
+        if (GUILayout.Button(cellText, cellButtonStyle, GUILayout.Width(30), GUILayout.Height(30)))
         {
             OnCellClicked(position);
         }
-
+        
         GUI.backgroundColor = originalColor;
     }
-
-    private string GetCellDisplayText(LevelObjectData objectData)
+    
+    private string GetCellText(CharacterInstanceData instanceData)
     {
-        if (objectData == null) return "";
-
-        if (objectData is LevelObjectDataSimpleCharacter simpleChar)
-        {
-            return simpleChar.colorType.ToString().Substring(0, 1); // First letter
-        }
-        else if (objectData is LevelObjectDataPipe pipe)
-        {
-            return $"P\n{pipe.characters?.Count ?? 0}";
-        }
-        else if (objectData is LevelObjectTypeBarrel barrel)
-        {
-            return $"B\n{barrel.character.colorType.ToString().Substring(0, 1)}";
-        }
-
+        if (instanceData == null) return "";
+        
+        if (instanceData is SimpleCharacterData)
+            return "S";
+        else if (instanceData is BarrelData)
+            return "B";
+        else if (instanceData is PipeData)
+            return "P";
+        
         return "?";
     }
-
-    private Color GetCellDisplayColor(LevelObjectData objectData)
+    
+    private Color GetCellColor(CharacterInstanceData instanceData)
     {
-        if (objectData == null) return Color.white;
-
-        if (objectData is LevelObjectDataSimpleCharacter simpleChar)
-        {
-            return colorTypeColors[(int)simpleChar.colorType];
-        }
-        else if (objectData is LevelObjectDataPipe)
-        {
-            return Color.gray;
-        }
-        else if (objectData is LevelObjectTypeBarrel barrel)
-        {
-            return colorTypeColors[(int)barrel.character.colorType];
-        }
-
+        if (instanceData == null) return Color.white;
+        
+        if (instanceData is SimpleCharacterData simple)
+            return GetColorFromType(simple.characterColorType);
+        else if (instanceData is BarrelData barrel)
+            return GetColorFromType(barrel.characterColorType);
+        else if (instanceData is PipeData pipe)
+            return pipe.characterColorTypes.Count > 0 ? GetColorFromType(pipe.characterColorTypes[0]) : Color.gray;
+        
         return Color.white;
     }
-
+    
     private void OnCellClicked(Vector2Int position)
     {
-        switch (selectedObjectType)
+        switch (selectedTool)
         {
             case 0: // Empty
                 levelInfo.RemoveObjectAtPosition(position);
                 break;
-
+                
             case 1: // Simple Character
-                var simpleChar = new LevelObjectDataSimpleCharacter();
-                simpleChar.colorType = selectedColor;
-                levelInfo.SetObjectAtPosition(position, simpleChar);
+                var simpleData = new SimpleCharacterData();
+                simpleData.characterColorType = selectedColor;
+                levelInfo.SetObjectAtPosition(position, simpleData);
                 break;
-
-            case 2: // Pipe
-                if (pipeCharacters.Count > 0)
-                {
-                    var pipe = new LevelObjectDataPipe();
-                    pipe.characters = new List<LevelObjectDataSimpleCharacter>(pipeCharacters);
-                    levelInfo.SetObjectAtPosition(position, pipe);
-                }
+                
+            case 2: // Barrel
+                var barrelData = new BarrelData();
+                barrelData.characterColorType = selectedColor;
+                levelInfo.SetObjectAtPosition(position, barrelData);
                 break;
-            case 3: //Barrel
-                var barrel = new LevelObjectTypeBarrel();
-                barrel.character = new LevelObjectDataSimpleCharacter() { colorType = selectedColor };
-                levelInfo.SetObjectAtPosition(position, barrel);
+                
+            case 3: // Pipe
+                var pipeData = new PipeData();
+                pipeData.pipeDirection = selectedPipeDirection;
+                pipeData.characterColorTypes = new List<ColorType>(pipeColors);
+                levelInfo.SetObjectAtPosition(position, pipeData);
                 break;
         }
-
+        
         EditorUtility.SetDirty(levelInfo);
         Repaint();
     }
-
-    private void DrawLevelStats()
+    
+    private Color GetColorFromType(ColorType colorType)
     {
-        EditorGUILayout.LabelField("Level Statistics", EditorStyles.boldLabel);
-
-        int simpleCharCount = 0;
-        int pipeCount = 0;
-        int totalCells = 0;
-
-        for (int x = 0; x < levelInfo.GridWidth; x++)
-        {
-            for (int y = 0; y < levelInfo.GridHeight; y++)
-            {
-                var obj = levelInfo.GetObjectAtPosition(new Vector2Int(x, y));
-                if (obj != null)
-                {
-                    totalCells++;
-                    if (obj is LevelObjectDataSimpleCharacter) simpleCharCount++;
-                    else if (obj is LevelObjectDataPipe) pipeCount++;
-                }
-            }
-        }
-
-        EditorGUILayout.LabelField($"Total Objects: {totalCells}");
-        EditorGUILayout.LabelField($"Simple Characters: {simpleCharCount}");
-        EditorGUILayout.LabelField($"Pipes: {pipeCount}");
-        EditorGUILayout.LabelField($"Empty Cells: {(levelInfo.GridWidth * levelInfo.GridHeight) - totalCells}");
+        if ((int)colorType < colorMap.Length)
+            return colorMap[(int)colorType];
+        return Color.white;
     }
-
+    
     private void InitializeCellButtonStyle()
     {
         if (cellButtonStyle == null)
@@ -362,18 +374,9 @@ public class LevelInformationEditor : Editor
             cellButtonStyle.fontStyle = FontStyle.Bold;
         }
     }
-
-    private void InitializePipeCharacters()
-    {
-        if (pipeCharacters == null)
-        {
-            pipeCharacters = new List<LevelObjectDataSimpleCharacter>();
-        }
-    }
-
+    
     private void SetGridSize(int width, int height)
     {
-        newGridSize = new Vector2Int(width, height);
         levelInfo.SetGridSize(width, height);
         EditorUtility.SetDirty(levelInfo);
     }

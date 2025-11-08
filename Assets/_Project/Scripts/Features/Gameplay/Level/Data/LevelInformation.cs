@@ -61,7 +61,7 @@ public class LevelInformation : ScriptableObject
 
     #region Cell Operations
 
-    public bool SetObjectAtPosition(Vector2Int position, LevelObjectData objectData)
+    public bool SetObjectAtPosition(Vector2Int position, CharacterInstanceData instanceData)
     {
         if (!IsValidPosition(position))
         {
@@ -77,8 +77,8 @@ public class LevelInformation : ScriptableObject
             levelCells.Add(cellData);
         }
 
-        // Obje verisini ayarla
-        cellData.objectData = objectData;
+        // Instance data'yı ayarla
+        cellData.instanceData = instanceData;
 
 #if UNITY_EDITOR
         UnityEditor.EditorUtility.SetDirty(this);
@@ -91,15 +91,15 @@ public class LevelInformation : ScriptableObject
     /// Belirtilen pozisyondaki objeyi kaldırır
     /// </summary>
     /// <param name="position">Grid pozisyonu</param>
-    /// <returns>Kaldırılan obje verisi</returns>
-    public LevelObjectData RemoveObjectAtPosition(Vector2Int position)
+    /// <returns>Kaldırılan karakter verisi</returns>
+    public CharacterInstanceData RemoveObjectAtPosition(Vector2Int position)
     {
         LevelCellData cellData = GetCellData(position);
-        if (cellData == null || cellData.objectData == null)
+        if (cellData == null || cellData.instanceData == null)
             return null;
 
-        LevelObjectData removedData = cellData.objectData;
-        cellData.objectData = null;
+        CharacterInstanceData removedData = cellData.instanceData;
+        cellData.instanceData = null;
 
 #if UNITY_EDITOR
         UnityEditor.EditorUtility.SetDirty(this);
@@ -108,16 +108,22 @@ public class LevelInformation : ScriptableObject
         return removedData;
     }
 
-    public LevelObjectData GetObjectAtPosition(Vector2Int position)
+    public CharacterInstanceData GetObjectAtPosition(Vector2Int position)
     {
         LevelCellData cellData = GetCellData(position);
-        return cellData?.objectData;
+        return cellData?.instanceData;
+    }
+
+    public CharacterInstanceData GetInstanceDataAtPosition(Vector2Int position)
+    {
+        LevelCellData cellData = GetCellData(position);
+        return cellData?.instanceData;
     }
 
     public bool HasObjectAtPosition(Vector2Int position)
     {
         LevelCellData cellData = GetCellData(position);
-        return cellData?.objectData != null;
+        return cellData?.instanceData != null;
     }
 
     private LevelCellData GetCellData(Vector2Int position)
@@ -171,11 +177,11 @@ public class LevelInformation : ScriptableObject
 public class LevelCellData
 {
     public Vector2Int position;
-    public LevelObjectData objectData;
+    public CharacterInstanceData instanceData;
 
     public LevelCellData(Vector2Int pos)
     {
         position = pos;
-        objectData = null;
+        instanceData = new CharacterInstanceData();
     }
 }

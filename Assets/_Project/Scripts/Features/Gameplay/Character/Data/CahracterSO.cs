@@ -12,5 +12,4 @@ public class CharacterSO : ScriptableObject
     
     [Header("Visual")]
     public Sprite characterIcon;
-    public Color characterColor = Color.white;
 }
