@@ -68,6 +68,12 @@ public class LevelInformationEditor : Editor
         DrawUtilityButtons();
         
         serializedObject.ApplyModifiedProperties();
+        
+        // Force save if anything changed
+        if (GUI.changed)
+        {
+            levelInfo.ForceSerialize();
+        }
     }
     
     private void DrawGridControls()
@@ -354,6 +360,7 @@ public class LevelInformationEditor : Editor
                 break;
         }
         
+        levelInfo.ForceSerialize();
         EditorUtility.SetDirty(levelInfo);
         Repaint();
     }

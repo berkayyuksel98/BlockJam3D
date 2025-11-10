@@ -15,32 +15,73 @@ MonoBehaviour:
   levelName: Level 0
   levelDescription: 
   levelIndex: 0
-  gridWidth: 5
-  gridHeight: 5
+  gridWidth: 3
+  gridHeight: 3
   cellSize: 1
   levelCells:
-  - position: {x: 4, y: 3}
-  - position: {x: 4, y: 1}
   - position: {x: 2, y: 2}
-  - position: {x: 0, y: 3}
-  - position: {x: 4, y: 0}
-  - position: {x: 3, y: 0}
+    instanceData:
+      rid: 556990790692241535
   - position: {x: 2, y: 0}
+    instanceData:
+      rid: 556990790692241528
   - position: {x: 1, y: 0}
+    instanceData:
+      rid: 556990790692241531
   - position: {x: 0, y: 0}
+    instanceData:
+      rid: 556990790692241519
   - position: {x: 1, y: 1}
+    instanceData:
+      rid: 556990790692241513
   - position: {x: 2, y: 1}
-  - position: {x: 3, y: 1}
-  - position: {x: 3, y: 2}
-  - position: {x: 3, y: 3}
-  - position: {x: 2, y: 3}
-  - position: {x: 1, y: 3}
+    instanceData:
+      rid: 556990790692241534
   - position: {x: 1, y: 2}
+    instanceData:
+      rid: 556990790692241533
   - position: {x: 0, y: 2}
-  - position: {x: 4, y: 2}
+    instanceData:
+      rid: 556990790692241518
   - position: {x: 0, y: 1}
-  - position: {x: 1, y: 4}
-  - position: {x: 3, y: 4}
-  - position: {x: 0, y: 4}
-  - position: {x: 2, y: 4}
-  - position: {x: 4, y: 4}
+    instanceData:
+      rid: 556990790692241532
+  references:
+    version: 2
+    RefIds:
+    - rid: 556990790692241513
+      type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
+      data:
+        characterColorType: 0
+    - rid: 556990790692241518
+      type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
+      data:
+        characterColorType: 0
+    - rid: 556990790692241519
+      type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
+      data:
+        characterColorType: 1
+    - rid: 556990790692241528
+      type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
+      data:
+        characterColorType: 1
+    - rid: 556990790692241531
+      type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
+      data:
+        characterColorType: 2
+    - rid: 556990790692241532
+      type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
+      data:
+        characterColorType: 2
+    - rid: 556990790692241533
+      type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
+      data:
+        characterColorType: 2
+    - rid: 556990790692241534
+      type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
+      data:
+        characterColorType: 0
+    - rid: 556990790692241535
+      type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
+      data:
+        characterColorType: 1
