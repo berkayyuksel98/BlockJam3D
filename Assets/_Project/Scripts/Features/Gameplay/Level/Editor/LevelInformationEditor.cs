@@ -95,7 +95,14 @@ public class LevelInformationEditor : Editor
             SetGridSize(10, 10);
         if (GUILayout.Button("12x8"))
             SetGridSize(12, 8);
-            
+        
+        EditorGUILayout.IntField("Combine Zone Length", levelInfo.CombineZoneLength);
+        if (GUILayout.Button("Set Combine Zone Length"))
+        {
+            int newLength = EditorGUILayout.IntField("New Combine Zone Length:", levelInfo.CombineZoneLength);
+            levelInfo.SetGridZoneLenght(Mathf.Max(0, newLength));
+            EditorUtility.SetDirty(levelInfo);
+        }
         EditorGUILayout.EndHorizontal();
     }
     

@@ -43,11 +43,11 @@ public class CharacterFactory : Singleton<CharacterFactory>
         Debug.Log($"CharacterFactory initialized {characterSOs.Count} character pools");
     }
 
-    public GameObject CreateCharacter(CharacterInstanceData instanceData, Vector3 position, Quaternion rotation)
+    public GameObject CreateCharacter(CharacterInstanceData instanceData, Vector3 position, Quaternion rotation, string gridID)
     {
         if (instanceData is SimpleCharacterData)
         {
-            return CreateSimpleCharacter((SimpleCharacterData)instanceData, position, rotation);
+            return CreateSimpleCharacter((SimpleCharacterData)instanceData, position, rotation, gridID);
         }
         else if (instanceData is BarrelData)
         {
@@ -64,11 +64,11 @@ public class CharacterFactory : Singleton<CharacterFactory>
         }
     }
 
-    private GameObject CreateSimpleCharacter(SimpleCharacterData data, Vector3 position, Quaternion rotation)
+    private GameObject CreateSimpleCharacter(SimpleCharacterData data, Vector3 position, Quaternion rotation,string gridID)
     {
         string poolKey = GetPoolKey(CharacterType.Simple);
         GameObject character = PoolingManager.Instance.Get(poolKey, position, rotation);
-        character.GetComponent<SimpleCharacter>().Initialize(data.characterColorType);
+        character.GetComponent<SimpleCharacter>().Initialize(data.characterColorType, gridID);
         return character;
     }
     private GameObject CreateBarrelCharacter(BarrelData data, Vector3 position, Quaternion rotation)

@@ -12,7 +12,11 @@ public class LevelInformation : ScriptableObject
     [Header("Grid Configuration")]
     [SerializeField] private int gridWidth = 10;
     [SerializeField] private int gridHeight = 10;
+    [SerializeField] private int combineZoneLength;
     public float cellSize = 1f;
+    
+    [Header("Exit Configuration")]
+    [SerializeField] private Vector2Int exitPoint = new Vector2Int(0, 0);
 
     [Header("Level Grid Data")]
     [SerializeField] private List<LevelCellData> levelCells = new List<LevelCellData>();
@@ -22,7 +26,7 @@ public class LevelInformation : ScriptableObject
     /// Grid genişliği
     /// </summary>
     public int GridWidth => gridWidth;
-
+    public int CombineZoneLength => combineZoneLength;
     /// <summary>
     /// Grid yüksekliği
     /// </summary>
@@ -51,6 +55,17 @@ public class LevelInformation : ScriptableObject
         MarkDirty();
     }
 
+    public void SetGridZoneLenght(int length)
+    {
+        if (length < 0)
+        {
+            Debug.LogError("Combine Zone Length cannot be negative!");
+            return;
+        }
+
+        combineZoneLength = length;
+        MarkDirty();
+    }
     private void CleanupOutOfBoundsCells()
     {
         levelCells.RemoveAll(cell => !IsValidPosition(cell.position));

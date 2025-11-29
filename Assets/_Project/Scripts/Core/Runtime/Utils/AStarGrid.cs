@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace GridAStar
 {
-    // Basit 2D nokta tipi
+    /// <summary>
+    /// Basit 2D nokta yapısı.
+    /// </summary>
     public readonly struct Point : IEquatable<Point>
     {
         public readonly int x;
@@ -19,12 +21,14 @@ namespace GridAStar
         public static bool operator !=(Point a, Point b) => !a.Equals(b);
     }
 
-    // A* için düğüm
+    /// <summary>
+    /// A* algoritması için kullanılan düğüm sınıfı.
+    /// </summary>
     internal sealed class Node
     {
         public Point P;
-        public int G;   // start -> bu node gerçek maliyet (adım sayısı)
-        public int H;   // bu node -> hedef Manhattan tahmini
+        public int G;   // Başlangıçtan bu düğüme olan maliyet
+        public int H;   // Bu düğümden hedefe olan tahmini maliyet (Heuristic)
         public int F => G + H;
         public Node Parent;
 
@@ -34,12 +38,14 @@ namespace GridAStar
         }
     }
 
+    /// <summary>
+    /// A* yol bulma algoritmasını uygulayan sınıf.
+    /// </summary>
     public sealed class AStarGrid
     {
         private readonly int _w, _h;
-        private readonly bool[,] _walkable; // true = geçilebilir
+        private readonly bool[,] _walkable;
 
-        // 4 yön (sağ, sol, yukarı, aşağı)
         private static readonly (int dx, int dy)[] _dirs =
         {
             ( 1,  0),
@@ -48,6 +54,11 @@ namespace GridAStar
             ( 0, -1),
         };
 
+        /// <summary>
+        /// Grid'i belirtilen boyutlarda oluşturur.
+        /// </summary>
+        /// <param name="width">Genişlik.</param>
+        /// <param name="height">Yükseklik.</param>
         public AStarGrid(int width, int height)
         {
             _w = width; _h = height;
@@ -57,26 +68,43 @@ namespace GridAStar
                     _walkable[x, y] = true;
         }
 
+        /// <summary>
+        /// Belirtilen koordinatın engelli durumunu ayarlar.
+        /// </summary>
+        /// <param name="x">X koordinatı.</param>
+        /// <param name="y">Y koordinatı.</param>
+        /// <param name="blocked">Engelli mi?</param>
         public void SetBlocked(int x, int y, bool blocked = true)
         {
             if (InBounds(x, y)) _walkable[x, y] = !blocked;
         }
 
+        /// <summary>
+        /// Koordinatın grid sınırları içinde olup olmadığını kontrol eder.
+        /// </summary>
         public bool InBounds(int x, int y) => x >= 0 && y >= 0 && x < _w && y < _h;
+
+        /// <summary>
+        /// Koordinatın yürünebilir olup olmadığını kontrol eder.
+        /// </summary>
         public bool IsWalkable(int x, int y) => InBounds(x, y) && _walkable[x, y];
 
-        // Manhattan heuristic (4-yön için uygun ve admissible)
         private static int H(Point a, Point b) => Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
 
-        // start -> goal yolu (liste) döner; yoksa null
+        /// <summary>
+        /// Başlangıç noktasından hedef noktaya yol bulur.
+        /// </summary>
+        /// <param name="start">Başlangıç noktası.</param>
+        /// <param name="goal">Hedef noktası.</param>
+        /// <returns>Yol listesi veya null.</returns>
         public List<Point> FindPath(Point start, Point goal)
         {
             if (!IsWalkable(start.x, start.y) || !IsWalkable(goal.x, goal.y))
                 return null;
 
-            var openList = new List<Node>();                 // işlenecekler
-            var openMap  = new Dictionary<Point, Node>();    // hızlı lookup
-            var closed   = new HashSet<Point>();             // tamamlananlar
+            var openList = new List<Node>();
+            var openMap  = new Dictionary<Point, Node>();
+            var closed   = new HashSet<Point>();
 
             var startNode = new Node(start, g: 0, h: H(start, goal), parent: null);
             openList.Add(startNode);
@@ -84,45 +112,38 @@ namespace GridAStar
 
             while (openList.Count > 0)
             {
-                // 1) En iyi node'u çek
                 var current = PopBest(openList);
                 openMap.Remove(current.P);
                 closed.Add(current.P);
 
-                // 2) Hedefe ulaşıldı
                 if (current.P == goal)
                     return ReconstructPath(current);
 
-                // 3) Komşular
                 foreach (var (dx, dy) in _dirs)
                 {
                     int nx = current.P.x + dx;
                     int ny = current.P.y + dy;
                     var np = new Point(nx, ny);
 
-                    if (!IsWalkable(nx, ny)) continue;   // engel/taşma
-                    if (closed.Contains(np)) continue;    // zaten işlendi
+                    if (!IsWalkable(nx, ny)) continue;
+                    if (closed.Contains(np)) continue;
 
-                    int tentativeG = current.G + 1;       // sabit adım maliyeti
+                    int tentativeG = current.G + 1;
 
                     if (!openMap.TryGetValue(np, out var neighbor))
                     {
-                        // yeni keşif
                         neighbor = new Node(np, tentativeG, H(np, goal), current);
                         openList.Add(neighbor);
                         openMap[np] = neighbor;
                     }
                     else if (tentativeG < neighbor.G)
                     {
-                        // daha iyi yol bulundu
                         neighbor.G = tentativeG;
                         neighbor.Parent = current;
-                        // openList içinde yerinde kalır (küçük listelerde yeterli)
                     }
                 }
             }
 
-            // Yol yok
             return null;
         }
 
@@ -141,9 +162,9 @@ namespace GridAStar
 
         private static bool Better(Node a, Node b)
         {
-            if (a.F != b.F) return a.F < b.F;   // düşük F daha iyi
-            if (a.H != b.H) return a.H < b.H;   // sonra düşük H
-            return a.G < b.G;                   // sonra düşük G
+            if (a.F != b.F) return a.F < b.F;
+            if (a.H != b.H) return a.H < b.H;
+            return a.G < b.G;
         }
 
         private static List<Point> ReconstructPath(Node goalNode)

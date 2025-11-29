@@ -163,12 +163,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70cb401a59b2a4a3baacf47e391b148e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellSize: 1
-  gridOffset: {x: 0, y: 0, z: 0}
-  showGizmos: 1
-  emptyGridColor: {r: 0, g: 1, b: 0, a: 1}
-  occupiedGridColor: {r: 1, g: 0, b: 0, a: 1}
-  gridLineColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,8 +224,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -255,13 +249,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
+  m_LocalPosition: {x: 0, y: 12, z: -7.18}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 60, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -457,9 +451,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterSOs:
-  - {fileID: 11400000, guid: 194ee227c554a4ee393a24bf39758d23, type: 2}
-  - {fileID: 11400000, guid: 699fb10741ff54b40892d50a28a59239, type: 2}
-  - {fileID: 11400000, guid: a42cacfcad3a6484daac72c690151435, type: 2}
+  - {fileID: 11400000, guid: 8eab6a8d02df74a4ba14fbad1b11c8b2, type: 2}
   defaultCapacity: 10
 --- !u!4 &905325543
 Transform:
@@ -476,6 +468,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &985062523
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 985062524}
+  - component: {fileID: 985062525}
+  m_Layer: 0
+  m_Name: GameController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &985062524
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985062523}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &985062525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985062523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ee87cf46dbbf461797388dc57544236, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1291568579
 GameObject:
   m_ObjectHideFlags: 0
@@ -505,6 +541,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6aa903bb84334b178ab196fac33fc09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  combineZonePositionDelta: 2
 --- !u!4 &1291568581
 Transform:
   m_ObjectHideFlags: 0
@@ -549,7 +586,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef015e7b556174383b7eeb601d19eda6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poolConfigs: []
+  poolConfigs:
+  - poolKey: SimpleCharacter
+    prefab: {fileID: 6974240730856027113, guid: 9dec06e07e4b94db880026f637c8f444, type: 3}
+    defaultCapacity: 5
+    prewarm: 0
   enableDebugLogs: 1
 --- !u!4 &1352433943
 Transform:
@@ -576,3 +617,4 @@ SceneRoots:
   - {fileID: 905325543}
   - {fileID: 1352433943}
   - {fileID: 1291568581}
+  - {fileID: 985062524}

@@ -2,21 +2,17 @@ using UnityEngine;
 
 public class LevelLoader : Singleton<LevelLoader>
 {
-    private GridManager gridManager;
     private CharacterFactory characterFactory;
-    
+    private GridSystem gameplayGrid, combineZoneGrid;
     private LevelInformation currentLevel;
-    
+    [SerializeField] private float combineZonePositionDelta = 2f;
     private void Start()
     {
-        // GridManager ve CharacterFactory referanslarını otomatik bul
-        if (gridManager == null)
-            gridManager = GridManager.Instance;
-            
+        // CharacterFactory referansını otomatik bul
         if (characterFactory == null)
             characterFactory = CharacterFactory.Instance;
     }
-    
+
     public void LoadLevel(LevelInformation levelInformation)
     {
         if (levelInformation == null)
@@ -24,101 +20,136 @@ public class LevelLoader : Singleton<LevelLoader>
             Debug.LogError("LevelInformation is null!");
             return;
         }
-        
-        if (gridManager == null)
+
+        SetCombineZoneGrid(levelInformation);
+
+        gameplayGrid = GridManager.Instance.CreateGrid("gameplay");
+
+        bool nullCheck = NullCheckControl();
+        if (!nullCheck)
         {
-            Debug.LogError("GridManager reference is missing!");
             return;
         }
-        
+
+        // Önceki level'i temizle
+        UnloadCurrentLevel();
+
+        // Yeni level'i kaydet
+        currentLevel = levelInformation;
+
+        // 1. Önce gridi ayarlayalım
+        SetupGrid(levelInformation);
+
+        // 2. Ardından gridlerdeki pozisyonları alıp karakterleri spawn edelim
+        SpawnCharacters(levelInformation);
+
+        Debug.Log($"Level loaded: {levelInformation.name} ({levelInformation.GridWidth}x{levelInformation.GridHeight})");
+    }
+
+    private bool NullCheckControl()
+    {
+        if (gameplayGrid == null)
+        {
+            Debug.LogError($"Failed to create gameplay grid with ID 'gameplay'!");
+            return false;
+        }
+
+        if (combineZoneGrid == null)
+        {
+            Debug.LogError("Failed to create combine zone grid!");
+            return false;
+        }
+
         if (characterFactory == null)
         {
             Debug.LogError("CharacterFactory reference is missing!");
-            return;
+            return false;
         }
-        
-        // Önceki level'i temizle
-        UnloadCurrentLevel();
-        
-        // Yeni level'i kaydet
-        currentLevel = levelInformation;
-        
-        // 1. Önce gridi ayarlayalım
-        SetupGrid(levelInformation);
-        
-        // 2. Ardından gridlerdeki pozisyonları alıp karakterleri spawn edelim
-        SpawnCharacters(levelInformation);
-        
-        Debug.Log($"Level loaded: {levelInformation.name} ({levelInformation.GridWidth}x{levelInformation.GridHeight})");
+
+        return true;
     }
-    
+
+    private void SetCombineZoneGrid(LevelInformation levelInformation)
+    {
+        combineZoneGrid = GridManager.Instance.CreateGrid("combinezone", new Vector3(0, 0, -combineZonePositionDelta));
+        combineZoneGrid.SetupGrid(levelInformation.CombineZoneLength, 1, GridCenter.Centered);
+    }
+
     private void SetupGrid(LevelInformation levelInfo)
     {
         // Grid boyutlarını ayarla
-        gridManager.SetupGrid(levelInfo.GridWidth, levelInfo.GridHeight);
+        gameplayGrid.SetupGrid(levelInfo.GridWidth, levelInfo.GridHeight, GridCenter.BottomCentered);
         Debug.Log($"Grid setup: {levelInfo.GridWidth}x{levelInfo.GridHeight}");
     }
-    
+
     private void SpawnCharacters(LevelInformation levelInfo)
     {
         int spawnedCount = 0;
-        
+
         // Grid'deki her pozisyonu kontrol et
         for (int x = 0; x < levelInfo.GridWidth; x++)
         {
             for (int y = 0; y < levelInfo.GridHeight; y++)
             {
                 Vector2Int gridPosition = new Vector2Int(x, y);
-                
+
                 // Bu pozisyonda karakter var mı?
                 CharacterInstanceData instanceData = levelInfo.GetObjectAtPosition(gridPosition);
-                
+
                 if (instanceData != null)
                 {
                     // Dünya pozisyonunu hesapla
-                    Vector3 worldPosition = gridManager.GetWorldPosition(gridPosition);
-                    
+                    Vector3 worldPosition = gameplayGrid.GetWorldPosition(gridPosition);
+
                     // Karakteri spawn et
                     GameObject spawnedCharacter = characterFactory.CreateCharacter(
-                        instanceData, 
-                        worldPosition, 
-                        Quaternion.identity
+                        instanceData,
+                        worldPosition,
+                        Quaternion.identity,
+                        "gameplay"
                     );
-                    
+
                     if (spawnedCharacter != null)
                     {
+                        // Grid pozisyonunu karaktere set et
+                        Character character = spawnedCharacter.GetComponent<Character>();
+                        if (character != null)
+                        {
+                            character.SetGridPosition(gridPosition, "gameplay");
+                        }
+
                         // Grid'e karakter objesini kaydet
-                        gridManager.SetObjectAtPosition(gridPosition, spawnedCharacter);
+                        gameplayGrid.SetObjectAtPosition(gridPosition, spawnedCharacter);
                         spawnedCount++;
                     }
                 }
             }
         }
-        
+
         Debug.Log($"Spawned {spawnedCount} characters");
     }
-    
+
     public void UnloadCurrentLevel()
     {
-        if (gridManager != null)
+        if (gameplayGrid != null)
         {
-            gridManager.ClearGrid(characterFactory);
+            gameplayGrid.ClearGrid(characterFactory);
         }
-        
+
         currentLevel = null;
         Debug.Log("Current level unloaded");
     }
-    
+
     public LevelInformation GetCurrentLevel()
     {
         return currentLevel;
     }
-    
+
     public GameObject GetCharacterAtPosition(Vector2Int gridPosition)
     {
-        if (gridManager != null)
+        if (gameplayGrid != null)
         {
-            return gridManager.GetObjectAtPosition(gridPosition);
+            return gameplayGrid.GetObjectAtPosition(gridPosition);
         }
         return null;
     }

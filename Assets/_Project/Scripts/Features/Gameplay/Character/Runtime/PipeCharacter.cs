@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PipeCharacter : MonoBehaviour
+public class PipeCharacter : Character
 {
     public void Initialize(List<ColorType> colorTypes)
     {

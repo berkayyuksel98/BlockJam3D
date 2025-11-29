@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BarrelCharacter : MonoBehaviour
+public class BarrelCharacter : Character
 {
     public void Initialize(ColorType colorType)
     {
