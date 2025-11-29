@@ -23,7 +23,7 @@ MonoBehaviour:
   levelCells:
   - position: {x: 2, y: 2}
     instanceData:
-      rid: 556990790692241535
+      rid: 556991264158908763
   - position: {x: 2, y: 0}
     instanceData:
       rid: 556990790692241528
@@ -71,10 +71,6 @@ MonoBehaviour:
       type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
       data:
         characterColorType: 2
-    - rid: 556990790692241535
-      type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
-      data:
-        characterColorType: 1
     - rid: 556991264158908486
       type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
       data:
@@ -87,3 +83,7 @@ MonoBehaviour:
       type: {class: SimpleCharacterData, ns: , asm: Assembly-CSharp}
       data:
         characterColorType: 2
+    - rid: 556991264158908763
+      type: {class: BarrelData, ns: , asm: Assembly-CSharp}
+      data:
+        characterColorType: 1

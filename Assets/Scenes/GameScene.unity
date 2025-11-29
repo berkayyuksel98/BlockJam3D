@@ -452,6 +452,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterSOs:
   - {fileID: 11400000, guid: 8eab6a8d02df74a4ba14fbad1b11c8b2, type: 2}
+  - {fileID: 11400000, guid: 8eab6a8d02df74a4ba14fbad1b11c8b2, type: 2}
   defaultCapacity: 10
 --- !u!4 &905325543
 Transform:
@@ -589,6 +590,10 @@ MonoBehaviour:
   poolConfigs:
   - poolKey: SimpleCharacter
     prefab: {fileID: 6974240730856027113, guid: 9dec06e07e4b94db880026f637c8f444, type: 3}
+    defaultCapacity: 5
+    prewarm: 0
+  - poolKey: BarrelCharacter
+    prefab: {fileID: 5643232337808672702, guid: eac17e9bd92994558aa11d28ce225b41, type: 3}
     defaultCapacity: 5
     prewarm: 0
   enableDebugLogs: 1

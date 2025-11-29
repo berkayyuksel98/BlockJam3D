@@ -43,6 +43,9 @@ public class LevelLoader : Singleton<LevelLoader>
         // 2. Ardından gridlerdeki pozisyonları alıp karakterleri spawn edelim
         SpawnCharacters(levelInformation);
 
+        // 3. Tüm karakterler spawn edildikten sonra level loaded event'i yayınla
+        EventBus.Instance.Publish(new OnLevelLoadedEvent(levelInformation.name));
+
         Debug.Log($"Level loaded: {levelInformation.name} ({levelInformation.GridWidth}x{levelInformation.GridHeight})");
     }
 

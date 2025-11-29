@@ -8,6 +8,34 @@ public class Character : MonoBehaviour
 {
     protected Vector2Int currentGridPos;
     protected string gridID;
+    protected bool isActivated = false;
+
+    /// <summary>
+    /// Level yükleme event'ine abone olur.
+    /// </summary>
+    protected virtual void SubscribeToLevelLoaded()
+    {
+        EventBus.Instance.Subscribe<OnLevelLoadedEvent>(OnLevelLoaded);
+    }
+
+    /// <summary>
+    /// Level yüklendiğinde çağrılır, karakteri aktif hale getirir.
+    /// </summary>
+    protected virtual void OnLevelLoaded(OnLevelLoadedEvent levelEvent)
+    {
+        EventBus.Instance.Unsubscribe<OnLevelLoadedEvent>(OnLevelLoaded);
+        ActivateCharacter();
+    }
+
+    /// <summary>
+    /// Karakteri aktif hale getirir ve grid event'lerine bağlar.
+    /// </summary>
+    protected virtual void ActivateCharacter()
+    {
+        if (isActivated) return;
+        isActivated = true;
+        SubscribeEvents();
+    }
 
     /// <summary>
     /// Event aboneliklerini başlatır.
@@ -23,6 +51,7 @@ public class Character : MonoBehaviour
     protected virtual void UnsubscribeEvents()
     {
         EventBus.Instance.Unsubscribe<OnGridChangedEvent>(OnGridChanged);
+        EventBus.Instance.Unsubscribe<OnLevelLoadedEvent>(OnLevelLoaded);
     }
 
     /// <summary>
@@ -37,25 +66,17 @@ public class Character : MonoBehaviour
     /// Grid değiştiğinde tetiklenir.
     /// </summary>
     /// <param name="gridEvent">Grid değişim olayı.</param>
-    protected void OnGridChanged(OnGridChangedEvent gridEvent)
+    protected virtual void OnGridChanged(OnGridChangedEvent gridEvent)
     {
-        CheckCharacterExitCondition();
+       
     }
 
     /// <summary>
     /// Karakterin çıkış yapıp yapamayacağını kontrol eder.
     /// </summary>
-    protected void CheckCharacterExitCondition()
+    protected virtual void CheckCharacterExitCondition()
     {
-        var canIExit = GameController.Instance.CanCharacterExit(this);
-        if (canIExit)
-        {
-            CharacterExitConfirmed();
-        }
-        else
-        {
-            CharacterExitNotConfirmed();
-        }
+        
     }
 
     /// <summary>
@@ -99,14 +120,6 @@ public class Character : MonoBehaviour
     protected virtual void OnMouseDown()
     {
         Debug.Log($"Character clicked: {gameObject.name} at position {transform.position}");
-        OnCharacterClickEvent clickEvent = new OnCharacterClickEvent
-        (
-            this,
-            transform.position,
-            currentGridPos
-        );
-
-        EventBus.Instance.Publish(clickEvent);
     }
 
     /// <summary>

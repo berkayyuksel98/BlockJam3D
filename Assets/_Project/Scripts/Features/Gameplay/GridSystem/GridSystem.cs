@@ -188,6 +188,15 @@ public class GridSystem : MonoBehaviour
         return null;
     }
 
+    public bool IsCellOccupied(Vector2Int gridPosition)
+    {
+        if (IsValidPosition(gridPosition) && gridData != null)
+        {
+            return gridData[gridPosition.x, gridPosition.y].gameObject != null;
+        }
+        return true; //valid değilse dolu kabul et
+    }
+
     /// <summary>
     /// Belirtilen grid pozisyonundaki hücre verisini döndürür.
     /// </summary>

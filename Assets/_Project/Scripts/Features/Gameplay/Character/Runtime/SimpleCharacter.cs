@@ -39,9 +39,14 @@ public class SimpleCharacter : Character
             colorTypeCharacters[index].gameObject.SetActive(true);
             currentVisualTransform = colorTypeCharacters[index];
         }
-        SubscribeEvents();
-        CheckCharacterExitCondition();
+        SubscribeToLevelLoaded();
         locationStatus = CharacterLocationStatus.Gameplay;
+    }
+
+    protected override void ActivateCharacter()
+    {
+        base.ActivateCharacter();
+        CheckCharacterExitCondition();
     }
 
     /// <summary>
@@ -63,6 +68,27 @@ public class SimpleCharacter : Character
             {
                 action?.Invoke();
             });
+    }
+    protected override void OnGridChanged(OnGridChangedEvent gridEvent)
+    {
+        if (!isActivated) return;
+        CheckCharacterExitCondition();
+    }
+
+    /// <summary>
+    /// Karakterin çıkış yapıp yapamayacağını kontrol eder.
+    /// </summary>
+    protected override void CheckCharacterExitCondition()
+    {
+        var canIExit = GameController.Instance.CanCharacterExit(this);
+        if (canIExit)
+        {
+            CharacterExitConfirmed();
+        }
+        else
+        {
+            CharacterExitNotConfirmed();
+        }
     }
 
     /// <summary>

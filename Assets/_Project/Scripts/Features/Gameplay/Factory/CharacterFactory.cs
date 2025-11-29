@@ -12,7 +12,7 @@ public class CharacterFactory : Singleton<CharacterFactory>
 {
     [Header("Character Data")]
     public List<CharacterSO> characterSOs;
-    
+
     [Header("Pool Settings")]
     [SerializeField] private int defaultCapacity = 10;
     private void Start()
@@ -27,7 +27,7 @@ public class CharacterFactory : Singleton<CharacterFactory>
             if (characterSO != null && characterSO.characterPrefab != null)
             {
                 string poolKey = GetPoolKey(characterSO.characterType);
-                
+
                 var poolConfig = new PoolConfig
                 {
                     poolKey = poolKey,
@@ -35,11 +35,11 @@ public class CharacterFactory : Singleton<CharacterFactory>
                     defaultCapacity = defaultCapacity,
                     prewarm = true,
                 };
-                
+
                 PoolingManager.Instance.AddPool(poolConfig);
             }
         }
-        
+
         Debug.Log($"CharacterFactory initialized {characterSOs.Count} character pools");
     }
 
@@ -51,7 +51,7 @@ public class CharacterFactory : Singleton<CharacterFactory>
         }
         else if (instanceData is BarrelData)
         {
-            return CreateBarrelCharacter((BarrelData)instanceData, position, rotation);
+            return CreateBarrelCharacter((BarrelData)instanceData, position, rotation,gridID);
         }
         else if (instanceData is PipeData)
         {
@@ -64,18 +64,18 @@ public class CharacterFactory : Singleton<CharacterFactory>
         }
     }
 
-    private GameObject CreateSimpleCharacter(SimpleCharacterData data, Vector3 position, Quaternion rotation,string gridID)
+    private GameObject CreateSimpleCharacter(SimpleCharacterData data, Vector3 position, Quaternion rotation, string gridID)
     {
         string poolKey = GetPoolKey(CharacterType.Simple);
         GameObject character = PoolingManager.Instance.Get(poolKey, position, rotation);
         character.GetComponent<SimpleCharacter>().Initialize(data.characterColorType, gridID);
         return character;
     }
-    private GameObject CreateBarrelCharacter(BarrelData data, Vector3 position, Quaternion rotation)
+    private GameObject CreateBarrelCharacter(BarrelData data, Vector3 position, Quaternion rotation,string gridID)
     {
         string poolKey = GetPoolKey(CharacterType.Barrel);
         GameObject character = PoolingManager.Instance.Get(poolKey, position, rotation);
-        character.GetComponent<BarrelCharacter>().Initialize(data.characterColorType);
+        character.GetComponent<BarrelCharacter>().Initialize(data.characterColorType, gridID);
         return character;
     }
     private GameObject CreatePipeCharacter(PipeData data, Vector3 position, Quaternion rotation)
