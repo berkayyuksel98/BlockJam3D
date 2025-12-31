@@ -452,7 +452,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterSOs:
   - {fileID: 11400000, guid: 8eab6a8d02df74a4ba14fbad1b11c8b2, type: 2}
-  - {fileID: 11400000, guid: 8eab6a8d02df74a4ba14fbad1b11c8b2, type: 2}
+  - {fileID: 11400000, guid: a42cacfcad3a6484daac72c690151435, type: 2}
+  - {fileID: 11400000, guid: 6a877cd4369f84163a623402415ae33d, type: 2}
   defaultCapacity: 10
 --- !u!4 &905325543
 Transform:
@@ -594,6 +595,10 @@ MonoBehaviour:
     prewarm: 0
   - poolKey: BarrelCharacter
     prefab: {fileID: 5643232337808672702, guid: eac17e9bd92994558aa11d28ce225b41, type: 3}
+    defaultCapacity: 5
+    prewarm: 0
+  - poolKey: PipeCharacter
+    prefab: {fileID: 768439471630450717, guid: 24c026dad0e074d08ae59cafd3141e6e, type: 3}
     defaultCapacity: 5
     prewarm: 0
   enableDebugLogs: 1

@@ -1,8 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Generic poolable object - IPoolable implement eder
-/// </summary>
 public class PoolableObject : MonoBehaviour, IPoolable
 {
     [SerializeField] private string poolKey;
@@ -19,26 +16,18 @@ public class PoolableObject : MonoBehaviour, IPoolable
     
     public virtual void OnSpawned()
     {
-        // Override edilebilir
     }
     
     public virtual void OnDespawned()
     {
-        // Override edilebilir
         ResetObject();
     }
     
-    /// <summary>
-    /// Kendini pool'a döndürür
-    /// </summary>
     public void ReturnToPool()
     {
         PoolingManager.Instance.Release(gameObject);
     }
     
-    /// <summary>
-    /// Objeyi sıfırlar
-    /// </summary>
     protected virtual void ResetObject()
     {
         // Transform reset

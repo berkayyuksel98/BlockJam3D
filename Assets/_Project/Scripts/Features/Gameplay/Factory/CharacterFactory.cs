@@ -55,7 +55,7 @@ public class CharacterFactory : Singleton<CharacterFactory>
         }
         else if (instanceData is PipeData)
         {
-            return CreatePipeCharacter((PipeData)instanceData, position, rotation);
+            return CreatePipeCharacter((PipeData)instanceData, position, rotation,gridID);
         }
         else
         {
@@ -78,11 +78,11 @@ public class CharacterFactory : Singleton<CharacterFactory>
         character.GetComponent<BarrelCharacter>().Initialize(data.characterColorType, gridID);
         return character;
     }
-    private GameObject CreatePipeCharacter(PipeData data, Vector3 position, Quaternion rotation)
+    private GameObject CreatePipeCharacter(PipeData data, Vector3 position, Quaternion rotation, string gridID)
     {
         string poolKey = GetPoolKey(CharacterType.Pipe);
         GameObject character = PoolingManager.Instance.Get(poolKey, position, rotation);
-        character.GetComponent<PipeCharacter>().Initialize(data.characterColorTypes);
+        character.GetComponent<PipeCharacter>().Initialize(data.characterColorTypes,gridID,data.pipeDirection);
         return character;
     }
 

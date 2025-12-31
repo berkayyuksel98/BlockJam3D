@@ -1,9 +1,6 @@
 using System;
 using UnityEngine;
 
-/// <summary>
-/// Pool edilecek objelerin konfigürasyonu
-/// </summary>
 [Serializable]
 public class PoolConfig
 {

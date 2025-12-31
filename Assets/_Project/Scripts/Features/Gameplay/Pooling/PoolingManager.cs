@@ -2,9 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
-/// <summary>
-/// Genel pooling sistemi - her türlü prefab için kullanılabilir
-/// </summary>
 public class PoolingManager : Singleton<PoolingManager>
 {
     [Header("Pool Configurations")]
@@ -21,9 +18,6 @@ public class PoolingManager : Singleton<PoolingManager>
         InitializePools();
     }
     
-    /// <summary>
-    /// Pool'ları başlatır
-    /// </summary>
     private void InitializePools()
     {
         pools = new Dictionary<string, ObjectPool<GameObject>>();
@@ -45,9 +39,7 @@ public class PoolingManager : Singleton<PoolingManager>
         }
     }
     
-    /// <summary>
-    /// Yeni pool oluşturur
-    /// </summary>
+    //Yeni pool olustur
     private void CreatePool(PoolConfig config)
     {
         var pool = new ObjectPool<GameObject>(
@@ -73,9 +65,6 @@ public class PoolingManager : Singleton<PoolingManager>
         }
     }
     
-    /// <summary>
-    /// Pool'u önceden ısıtır
-    /// </summary>
     private void PrewarmPool(string poolKey, int count)
     {
         if (!pools.TryGetValue(poolKey, out var pool)) return;
@@ -96,9 +85,7 @@ public class PoolingManager : Singleton<PoolingManager>
     
     #region Public API
     
-    /// <summary>
-    /// Pool'dan obje al
-    /// </summary>
+    //Pooldan obje al
     public GameObject Get(string poolKey, Vector3 position = default, Quaternion rotation = default)
     {
         if (!pools.TryGetValue(poolKey, out var pool))
@@ -119,9 +106,7 @@ public class PoolingManager : Singleton<PoolingManager>
         return obj;
     }
     
-    /// <summary>
-    /// Objeyi pool'a geri döndür
-    /// </summary>
+    //Objeyi poola geri dondur
     public void Release(GameObject obj)
     {
         var poolable = obj.GetComponent<IPoolable>();
@@ -137,9 +122,6 @@ public class PoolingManager : Singleton<PoolingManager>
         }
     }
     
-    /// <summary>
-    /// Objeyi belirli pool'a geri döndür
-    /// </summary>
     public void Release(string poolKey, GameObject obj)
     {
         if (!pools.TryGetValue(poolKey, out var pool))
@@ -157,9 +139,7 @@ public class PoolingManager : Singleton<PoolingManager>
         }
     }
     
-    /// <summary>
-    /// Runtime'da yeni pool ekle
-    /// </summary>
+    //Runtimeda yeni pool ekle
     public void AddPool(PoolConfig config)
     {
         if (pools.ContainsKey(config.poolKey))
@@ -171,9 +151,6 @@ public class PoolingManager : Singleton<PoolingManager>
         CreatePool(config);
     }
     
-    /// <summary>
-    /// Pool istatistikleri
-    /// </summary>
     public void GetPoolStats(string poolKey, out int activeCount, out int inactiveCount)
     {
         activeCount = 0;

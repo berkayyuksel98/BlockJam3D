@@ -1,8 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Karaktere tıklandığında tetiklenen event
-/// </summary>
 public struct OnCharacterClickEvent : IGameEvent
 {
     public Character character;

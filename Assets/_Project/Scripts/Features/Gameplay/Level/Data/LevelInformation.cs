@@ -22,19 +22,9 @@ public class LevelInformation : ScriptableObject
     [SerializeField] private List<LevelCellData> levelCells = new List<LevelCellData>();
 
     #region Properties
-    /// <summary>
-    /// Grid genişliği
-    /// </summary>
     public int GridWidth => gridWidth;
     public int CombineZoneLength => combineZoneLength;
-    /// <summary>
-    /// Grid yüksekliği
-    /// </summary>
     public int GridHeight => gridHeight;
-
-    /// <summary>
-    /// Grid boyutu Vector2Int formatında
-    /// </summary>
     public Vector2Int GridSize => new Vector2Int(gridWidth, gridHeight);
     #endregion
 
@@ -82,7 +72,6 @@ public class LevelInformation : ScriptableObject
             return false;
         }
 
-        // Mevcut cell'i bul veya oluştur
         LevelCellData cellData = GetCellData(position);
         if (cellData == null)
         {
@@ -90,18 +79,12 @@ public class LevelInformation : ScriptableObject
             levelCells.Add(cellData);
         }
 
-        // Instance data'yı ayarla
         cellData.instanceData = instanceData;
 
         MarkDirty();
         return true;
     }
 
-    /// <summary>
-    /// Belirtilen pozisyondaki objeyi kaldırır
-    /// </summary>
-    /// <param name="position">Grid pozisyonu</param>
-    /// <returns>Kaldırılan karakter verisi</returns>
     public CharacterInstanceData RemoveObjectAtPosition(Vector2Int position)
     {
         LevelCellData cellData = GetCellData(position);
@@ -182,24 +165,16 @@ public class LevelInformation : ScriptableObject
 #endif
     }
     
-    /// <summary>
-    /// Force serialization update - Unity Editor'da verilerin kaybolmasını önler
-    /// </summary>
     public void ForceSerialize()
     {
         MarkDirty();
     }
     
-    /// <summary>
-    /// Unity validation - Inspector'da değer değiştiğinde çağrılır
-    /// </summary>
     private void OnValidate()
     {
-        // Grid boyutlarının pozitif olduğundan emin ol
         if (gridWidth < 1) gridWidth = 1;
         if (gridHeight < 1) gridHeight = 1;
         
-        // Bounds dışındaki cell'leri temizle
         CleanupOutOfBoundsCells();
     }
     #endregion
@@ -215,6 +190,6 @@ public class LevelCellData
     public LevelCellData(Vector2Int pos)
     {
         position = pos;
-        instanceData = null; // Başlangıçta null bırak
+        instanceData = null;
     }
 }

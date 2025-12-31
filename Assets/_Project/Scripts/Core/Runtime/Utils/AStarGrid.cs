@@ -3,9 +3,6 @@ using System.Collections.Generic;
 
 namespace GridAStar
 {
-    /// <summary>
-    /// Basit 2D nokta yapısı.
-    /// </summary>
     public readonly struct Point : IEquatable<Point>
     {
         public readonly int x;
@@ -21,14 +18,11 @@ namespace GridAStar
         public static bool operator !=(Point a, Point b) => !a.Equals(b);
     }
 
-    /// <summary>
-    /// A* algoritması için kullanılan düğüm sınıfı.
-    /// </summary>
     internal sealed class Node
     {
         public Point P;
-        public int G;   // Başlangıçtan bu düğüme olan maliyet
-        public int H;   // Bu düğümden hedefe olan tahmini maliyet (Heuristic)
+        public int G;
+        public int H;
         public int F => G + H;
         public Node Parent;
 
@@ -38,9 +32,7 @@ namespace GridAStar
         }
     }
 
-    /// <summary>
-    /// A* yol bulma algoritmasını uygulayan sınıf.
-    /// </summary>
+    //AStar yol bulma algoritmasini uygular
     public sealed class AStarGrid
     {
         private readonly int _w, _h;
@@ -54,11 +46,6 @@ namespace GridAStar
             ( 0, -1),
         };
 
-        /// <summary>
-        /// Grid'i belirtilen boyutlarda oluşturur.
-        /// </summary>
-        /// <param name="width">Genişlik.</param>
-        /// <param name="height">Yükseklik.</param>
         public AStarGrid(int width, int height)
         {
             _w = width; _h = height;
@@ -68,35 +55,18 @@ namespace GridAStar
                     _walkable[x, y] = true;
         }
 
-        /// <summary>
-        /// Belirtilen koordinatın engelli durumunu ayarlar.
-        /// </summary>
-        /// <param name="x">X koordinatı.</param>
-        /// <param name="y">Y koordinatı.</param>
-        /// <param name="blocked">Engelli mi?</param>
         public void SetBlocked(int x, int y, bool blocked = true)
         {
             if (InBounds(x, y)) _walkable[x, y] = !blocked;
         }
 
-        /// <summary>
-        /// Koordinatın grid sınırları içinde olup olmadığını kontrol eder.
-        /// </summary>
         public bool InBounds(int x, int y) => x >= 0 && y >= 0 && x < _w && y < _h;
 
-        /// <summary>
-        /// Koordinatın yürünebilir olup olmadığını kontrol eder.
-        /// </summary>
         public bool IsWalkable(int x, int y) => InBounds(x, y) && _walkable[x, y];
 
         private static int H(Point a, Point b) => Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
 
-        /// <summary>
-        /// Başlangıç noktasından hedef noktaya yol bulur.
-        /// </summary>
-        /// <param name="start">Başlangıç noktası.</param>
-        /// <param name="goal">Hedef noktası.</param>
-        /// <returns>Yol listesi veya null.</returns>
+        //Baslangic noktasindan hedefe yol bulur
         public List<Point> FindPath(Point start, Point goal)
         {
             if (!IsWalkable(start.x, start.y) || !IsWalkable(goal.x, goal.y))

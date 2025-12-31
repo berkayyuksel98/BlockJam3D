@@ -23,9 +23,6 @@ public class GridCell
     }
 }
 
-/// <summary>
-/// Grid sistemini yöneten, hücreleri ve üzerindeki objeleri takip eden sınıf.
-/// </summary>
 public class GridSystem : MonoBehaviour
 {
     [Header("Grid Identity")]
@@ -37,13 +34,15 @@ public class GridSystem : MonoBehaviour
 
     [Header("Visual Settings")]
     [SerializeField] private bool showGizmos = true;
-    [SerializeField] private Color emptyGridColor = Color.green;
-    [SerializeField] private Color occupiedGridColor = Color.red;
-    [SerializeField] private Color gridLineColor = Color.white;
+    [ColorUsage(true, true)]
+    [SerializeField] private Color emptyGridColor = new Color(0.000f, 1.000f, 0.000f, 0.246f);
+    [SerializeField] private Color occupiedGridColor = new Color(1.000f, 0.000f, 0.000f, 0.197f);
+    [SerializeField] private Color gridLineColor = new Color(1.000f, 1.000f, 1.000f, 0.200f);
 
     [Header("Debug Settings")]
     [SerializeField] private bool showBlockedCells = false;
-    [SerializeField] private Color blockedCellColor = new Color(1, 0, 0, 0.5f);
+    [ColorUsage(true, true)]
+    [SerializeField] private Color blockedCellColor = new Color(1.000f, 0.000f, 0.000f, 0.193f);
 
     private int gridWidth;
     private int gridHeight;
@@ -56,21 +55,22 @@ public class GridSystem : MonoBehaviour
     public Vector3 GridOffset => gridOffset;
     public GridCenter GridCentering => gridCenter;
 
-    /// <summary>
-    /// Nesne aktif olduğunda kendini GridManager'a kaydeder.
-    /// </summary>
     private void OnEnable()
     {
         if (GridManager.Instance != null && !GridManager.Instance.HasGrid(gridID))
         {
             GridManager.Instance.RegisterGrid(this);
         }
+        EventBus.Instance.Subscribe<OnLevelLoadedEvent>(OnLevelLoaded);
     }
 
-    /// <summary>
-    /// Belirtilen karakteri grid üzerinden kaldırır.
-    /// </summary>
-    /// <param name="character">Kaldırılacak karakter.</param>
+    private void OnLevelLoaded(OnLevelLoadedEvent levelEvent)
+    {
+        EventBus.Instance.Unsubscribe<OnLevelLoadedEvent>(OnLevelLoaded);
+        EventBus.Instance.Publish(new OnGridChangedEvent(gridID));
+        Debug.Log($"[{gridID}] Level yüklendi, ilk OnGridChanged event'i tetiklendi.");
+    }
+
     public void RemoveCharacterFromGrid(Character character)
     {
         if (gridData == null) return;
@@ -93,23 +93,16 @@ public class GridSystem : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Nesne yok edildiğinde kendini GridManager'dan siler.
-    /// </summary>
     private void OnDestroy()
     {
         if (GridManager.Instance != null)
         {
             GridManager.Instance.UnregisterGrid(this);
         }
+        EventBus.Instance.Unsubscribe<OnLevelLoadedEvent>(OnLevelLoaded);
     }
 
-    /// <summary>
-    /// Grid'i belirtilen boyutlarda ve merkezleme ayarında oluşturur.
-    /// </summary>
-    /// <param name="width">Genişlik.</param>
-    /// <param name="height">Yükseklik.</param>
-    /// <param name="center">Merkezleme tipi.</param>
+    //Gridi belirtilen boyutlarda ve merkezleme ayarinda olustur
     public void SetupGrid(int width, int height, GridCenter center)
     {
         gridCenter = center;
@@ -127,11 +120,7 @@ public class GridSystem : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Grid koordinatını dünya pozisyonuna çevirir.
-    /// </summary>
-    /// <param name="gridPosition">Grid koordinatı.</param>
-    /// <returns>Dünya pozisyonu.</returns>
+    //Grid koordinatini dunya pozisyonuna cevir
     public Vector3 GetWorldPosition(Vector2Int gridPosition)
     {
         Vector3 worldPos = transform.position + gridOffset;
@@ -156,11 +145,7 @@ public class GridSystem : MonoBehaviour
         return worldPos + new Vector3(xPos, 0, zPos);
     }
 
-    /// <summary>
-    /// Belirtilen grid pozisyonuna bir obje yerleştirir.
-    /// </summary>
-    /// <param name="gridPosition">Hedef grid pozisyonu.</param>
-    /// <param name="obj">Yerleştirilecek obje.</param>
+    //Belirtilen grid pozisyonuna bir obje yerlestir
     public void SetObjectAtPosition(Vector2Int gridPosition, GameObject obj)
     {
         if (IsValidPosition(gridPosition) && gridData != null)
@@ -174,11 +159,6 @@ public class GridSystem : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Belirtilen grid pozisyonundaki objeyi döndürür.
-    /// </summary>
-    /// <param name="gridPosition">Sorgulanan grid pozisyonu.</param>
-    /// <returns>Bulunan obje veya null.</returns>
     public GameObject GetObjectAtPosition(Vector2Int gridPosition)
     {
         if (IsValidPosition(gridPosition) && gridData != null)
@@ -197,11 +177,6 @@ public class GridSystem : MonoBehaviour
         return true; //valid değilse dolu kabul et
     }
 
-    /// <summary>
-    /// Belirtilen grid pozisyonundaki hücre verisini döndürür.
-    /// </summary>
-    /// <param name="gridPosition">Sorgulanan grid pozisyonu.</param>
-    /// <returns>Grid hücresi.</returns>
     public GridCell GetGridCellAtPosition(Vector2Int gridPosition)
     {
         if (IsValidPosition(gridPosition) && gridData != null)
@@ -211,10 +186,7 @@ public class GridSystem : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// Grid üzerindeki tüm objeleri temizler.
-    /// </summary>
-    /// <param name="characterFactory">Karakter fabrikası (opsiyonel).</param>
+    //Grid uzerindeki tum objeleri temizle
     public void ClearGrid(CharacterFactory characterFactory = null)
     {
         if (gridData != null)
@@ -246,30 +218,17 @@ public class GridSystem : MonoBehaviour
         EventBus.Instance.Publish(new OnGridChangedEvent(gridID));
     }
 
-    /// <summary>
-    /// Verilen pozisyonun grid sınırları içinde olup olmadığını kontrol eder.
-    /// </summary>
-    /// <param name="position">Kontrol edilecek pozisyon.</param>
-    /// <returns>Geçerli ise true döner.</returns>
     public bool IsValidPosition(Vector2Int position)
     {
         return position.x >= 0 && position.x < gridWidth &&
                position.y >= 0 && position.y < gridHeight;
     }
 
-    /// <summary>
-    /// Grid boyutlarını ve hücre boyutunu döndürür.
-    /// </summary>
-    /// <returns>Genişlik, yükseklik ve hücre boyutu.</returns>
     public (int width, int height, float cellSize) GetGridInfo()
     {
         return (gridWidth, gridHeight, cellSize);
     }
 
-    /// <summary>
-    /// Dolu hücre sayısını döndürür.
-    /// </summary>
-    /// <returns>Dolu hücre sayısı.</returns>
     public int GetOccupiedCellCount()
     {
         if (gridData == null) return 0;
@@ -286,19 +245,11 @@ public class GridSystem : MonoBehaviour
         return count;
     }
 
-    /// <summary>
-    /// Boş hücre sayısını döndürür.
-    /// </summary>
-    /// <returns>Boş hücre sayısı.</returns>
     public int GetEmptyCellCount()
     {
         return (gridWidth * gridHeight) - GetOccupiedCellCount();
     }
 
-    /// <summary>
-    /// İlk boş slotun dünya pozisyonunu döndürür.
-    /// </summary>
-    /// <returns>Dünya pozisyonu.</returns>
     public Vector3 GetFirstEmptySlot()
     {
         var gridPos = GetFirstEmptyGridPosition();
@@ -309,10 +260,6 @@ public class GridSystem : MonoBehaviour
         return Vector3.zero;
     }
 
-    /// <summary>
-    /// İlk boş grid pozisyonunu döndürür.
-    /// </summary>
-    /// <returns>Grid pozisyonu veya null.</returns>
     public Vector2Int? GetFirstEmptyGridPosition()
     {
         for (int y = 0; y < gridHeight; y++)
@@ -328,13 +275,7 @@ public class GridSystem : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// İki nokta arasında yol bulur.
-    /// </summary>
-    /// <param name="start">Başlangıç noktası.</param>
-    /// <param name="end">Bitiş noktası.</param>
-    /// <param name="ignoreStartBlocked">Başlangıç noktası dolu olsa bile yol bulunsun mu?</param>
-    /// <returns>Yol listesi.</returns>
+    //Iki nokta arasinda yol bul
     public List<Point> FindPath(Vector2Int start, Vector2Int end, bool ignoreStartBlocked = false)
     {
         if (aStarGrid == null) return null;
@@ -355,11 +296,7 @@ public class GridSystem : MonoBehaviour
         return path;
     }
 
-    /// <summary>
-    /// Verilen başlangıç noktasından çıkışa (Y=0 satırına) yol olup olmadığını kontrol eder.
-    /// </summary>
-    /// <param name="startPos">Başlangıç pozisyonu.</param>
-    /// <returns>Yol varsa true döner.</returns>
+    //Verilen baslangic noktasindan cikisa yol var mi kontrol et
     public bool HasPathToExit(Vector2Int startPos)
     {
         if (aStarGrid == null) return false;
@@ -388,9 +325,7 @@ public class GridSystem : MonoBehaviour
         return found;
     }
 
-    /// <summary>
-    /// AStarGrid verisini mevcut GridData ile senkronize eder.
-    /// </summary>
+    //AStarGrid verisini mevcut GridData ile senkronize et
     public void SyncAStarGrid()
     {
         if (gridData == null) return;

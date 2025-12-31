@@ -1,6 +1,3 @@
-/// <summary>
-/// Level tamamen yüklendiğinde tetiklenen event.
-/// </summary>
 public struct OnLevelLoadedEvent : IGameEvent
 {
     public string levelName;

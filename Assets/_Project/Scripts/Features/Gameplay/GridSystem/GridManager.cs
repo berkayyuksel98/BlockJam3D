@@ -1,19 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// Merkezi Grid yönetim sistemi - Tüm GridSystem'leri yönetir.
-/// </summary>
 public class GridManager : Singleton<GridManager>
 {
     private Dictionary<string, GridSystem> grids = new Dictionary<string, GridSystem>();
 
-    /// <summary>
-    /// Yeni bir grid oluşturur veya mevcut olanı döndürür.
-    /// </summary>
-    /// <param name="gridID">Grid ID'si.</param>
-    /// <param name="position">Grid pozisyonu.</param>
-    /// <returns>Oluşturulan veya bulunan GridSystem.</returns>
+    //Yeni bir grid olustur veya mevcutu dondur
     public GridSystem CreateGrid(string gridID, Vector3 position = default)
     {
         if (grids.TryGetValue(gridID, out GridSystem existingGrid))
@@ -42,10 +34,7 @@ public class GridManager : Singleton<GridManager>
         return newGrid;
     }
 
-    /// <summary>
-    /// Yeni bir grid'i sisteme kaydeder.
-    /// </summary>
-    /// <param name="gridSystem">Kaydedilecek GridSystem.</param>
+    //Yeni bir gridi sisteme kaydet
     public void RegisterGrid(GridSystem gridSystem)
     {
         if (gridSystem == null)
@@ -68,10 +57,6 @@ public class GridManager : Singleton<GridManager>
         }
     }
 
-    /// <summary>
-    /// Grid'i sistemden kaldırır.
-    /// </summary>
-    /// <param name="gridSystem">Kaldırılacak GridSystem.</param>
     public void UnregisterGrid(GridSystem gridSystem)
     {
         if (gridSystem == null) return;
@@ -85,11 +70,6 @@ public class GridManager : Singleton<GridManager>
         }
     }
 
-    /// <summary>
-    /// ID'ye göre grid döndürür.
-    /// </summary>
-    /// <param name="gridID">Grid ID'si.</param>
-    /// <returns>Bulunan GridSystem veya null.</returns>
     public GridSystem GetGrid(string gridID)
     {
         if (grids.TryGetValue(gridID, out GridSystem grid))
@@ -101,38 +81,21 @@ public class GridManager : Singleton<GridManager>
         return null;
     }
 
-    /// <summary>
-    /// Grid'in var olup olmadığını kontrol eder.
-    /// </summary>
-    /// <param name="gridID">Grid ID'si.</param>
-    /// <returns>Varsa true döner.</returns>
     public bool HasGrid(string gridID)
     {
         return grids.ContainsKey(gridID);
     }
 
-    /// <summary>
-    /// Tüm kayıtlı gridleri döndürür.
-    /// </summary>
-    /// <returns>Grid sözlüğü.</returns>
     public Dictionary<string, GridSystem> GetAllGrids()
     {
         return new Dictionary<string, GridSystem>(grids);
     }
 
-    /// <summary>
-    /// Kayıtlı grid sayısını döndürür.
-    /// </summary>
-    /// <returns>Grid sayısı.</returns>
     public int GetGridCount()
     {
         return grids.Count;
     }
 
-    /// <summary>
-    /// Tüm gridleri temizler.
-    /// </summary>
-    /// <param name="characterFactory">Karakter fabrikası (opsiyonel).</param>
     public void ClearAllGrids(CharacterFactory characterFactory = null)
     {
         foreach (var grid in grids.Values)
@@ -143,9 +106,6 @@ public class GridManager : Singleton<GridManager>
 
     #region Debug Methods
 
-    /// <summary>
-    /// Tüm gridlerin bilgilerini debug loguna yazar.
-    /// </summary>
     [ContextMenu("Debug All Grids")]
     public void DebugAllGrids()
     {

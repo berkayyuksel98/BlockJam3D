@@ -8,9 +8,6 @@ public enum CharacterLocationStatus
     Slot
 }
 
-/// <summary>
-/// Basit karakter davranışlarını yöneten sınıf.
-/// </summary>
 public class SimpleCharacter : Character
 {
     public List<Transform> colorTypeCharacters;
@@ -18,16 +15,9 @@ public class SimpleCharacter : Character
     private CharacterLocationStatus locationStatus;
     private ColorType colorType;
 
-    /// <summary>
-    /// Karakterin renk tipini döndürür.
-    /// </summary>
     public ColorType ColorType => colorType;
 
-    /// <summary>
-    /// Karakteri belirtilen renk tipi ve grid ID ile başlatır.
-    /// </summary>
-    /// <param name="colorType">Karakterin renk tipi.</param>
-    /// <param name="gridID">Bulunduğu grid ID'si.</param>
+    //Karakteri belirtilen renk tipi ve grid ID ile baslat
     public void Initialize(ColorType colorType, string gridID)
     {
         this.colorType = colorType;
@@ -49,13 +39,7 @@ public class SimpleCharacter : Character
         CheckCharacterExitCondition();
     }
 
-    /// <summary>
-    /// Karakteri çıkış noktasına hareket ettirir.
-    /// </summary>
-    /// <param name="path">Takip edilecek yol.</param>
-    /// <param name="gridID">Hedef grid ID'si.</param>
-    /// <param name="currentGridPos">Hedef grid pozisyonu.</param>
-    /// <param name="action">Hareket tamamlandığında çalışacak aksiyon.</param>
+    //Karakteri cikis noktasina hareket ettir
     public override void MoveToExit(List<Vector3> path, string gridID, Vector2Int currentGridPos, System.Action action = null)
     {
         UnsubscribeEvents();
@@ -75,9 +59,7 @@ public class SimpleCharacter : Character
         CheckCharacterExitCondition();
     }
 
-    /// <summary>
-    /// Karakterin çıkış yapıp yapamayacağını kontrol eder.
-    /// </summary>
+    //Karakterin cikis yapip yapamayacagini kontrol et
     protected override void CheckCharacterExitCondition()
     {
         var canIExit = GameController.Instance.CanCharacterExit(this);
@@ -91,18 +73,14 @@ public class SimpleCharacter : Character
         }
     }
 
-    /// <summary>
-    /// Karakter çıkış yapabildiğinde görsel geri bildirim verir.
-    /// </summary>
+    //Karakter cikis yapabildiginde gorsel geri bildirim ver
     protected override void CharacterExitConfirmed()
     {
         currentVisualTransform.transform.localScale = new Vector3(0.75f, 0.75f, 0.75f);
         currentVisualTransform.transform.localPosition = new Vector3(0f, 0.75f / 2f, 0f);
     }
 
-    /// <summary>
-    /// Karakter çıkış yapamadığında görsel geri bildirim verir.
-    /// </summary>
+    //Karakter cikis yapamadiginda gorsel geri bildirim ver
     protected override void CharacterExitNotConfirmed()
     {
         currentVisualTransform.transform.localScale = new Vector3(0.4f, 0.5f, 0.4f);
@@ -110,9 +88,6 @@ public class SimpleCharacter : Character
         // UnityEditor.EditorApplication.isPaused = true; // Debug için durdurma kaldırıldı
     }
 
-    /// <summary>
-    /// Karakter tıklandığında çalışır.
-    /// </summary>
     protected override void OnMouseDown()
     {
         if (locationStatus != CharacterLocationStatus.Gameplay)

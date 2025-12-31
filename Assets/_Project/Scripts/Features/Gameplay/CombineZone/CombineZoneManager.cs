@@ -3,9 +3,6 @@ using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 
-/// <summary>
-/// Combine Zone'daki karakterlerin yerleşimini, kaydırmasını ve eşleşmesini yöneten sınıf.
-/// </summary>
 public class CombineZoneManager : Singleton<CombineZoneManager>
 {
     [Header("Match Settings")]
@@ -16,22 +13,13 @@ public class CombineZoneManager : Singleton<CombineZoneManager>
     private GridSystem combineGrid;
     private List<SimpleCharacter> slotCharacters = new List<SimpleCharacter>();
 
-    /// <summary>
-    /// Combine Zone grid'ini ayarlar.
-    /// </summary>
     public void Initialize(GridSystem grid)
     {
         combineGrid = grid;
         slotCharacters.Clear();
     }
 
-    /// <summary>
-    /// Yeni bir karakteri Combine Zone'a yerleştirir.
-    /// Aynı renklerin yanına yerleştirir ve gerekirse diğerlerini kaydırır.
-    /// </summary>
-    /// <param name="newCharacter">Yerleştirilecek karakter.</param>
-    /// <param name="onPlacementComplete">Yerleştirme tamamlandığında çağrılacak aksiyon.</param>
-    /// <returns>Yerleştirme başarılı ise hedef pozisyon, değilse null.</returns>
+    //Yeni karakteri combine zone'a yerlestir ayni renkleri yanyana koy
     public Vector2Int? PlaceCharacter(SimpleCharacter newCharacter, System.Action onPlacementComplete = null)
     {
         if (combineGrid == null)
@@ -77,10 +65,7 @@ public class CombineZoneManager : Singleton<CombineZoneManager>
         return new Vector2Int(insertIndex, 0);
     }
 
-    /// <summary>
-    /// Yeni karakterin yerleştirileceği index'i bulur.
-    /// Aynı renkteki karakterlerin yanına yerleştirir.
-    /// </summary>
+    //Yeni karakterin yerlestirileceği indexi bul
     private int FindInsertIndex(ColorType color)
     {
         // Aynı renkteki son karakterin index'ini bul
@@ -101,9 +86,7 @@ public class CombineZoneManager : Singleton<CombineZoneManager>
         return slotCharacters.Count;
     }
 
-    /// <summary>
-    /// Belirtilen index'ten itibaren karakterleri sağa kaydırır.
-    /// </summary>
+    //Belirtilen indexten itibaren karakterleri saga kaydir
     private void ShiftCharactersRight(int fromIndex, System.Action onComplete)
     {
         if (fromIndex >= slotCharacters.Count)
@@ -143,9 +126,7 @@ public class CombineZoneManager : Singleton<CombineZoneManager>
         }
     }
 
-    /// <summary>
-    /// 3 veya daha fazla aynı renk karakter yan yana mı kontrol eder ve eşleşirse birleştirir.
-    /// </summary>
+    //3 veya daha fazla ayni renk yan yana mi kontrol et ve birlestir
     private void CheckForMatches(System.Action onComplete)
     {
         List<int> matchIndices = FindMatchIndices();
@@ -164,9 +145,6 @@ public class CombineZoneManager : Singleton<CombineZoneManager>
         }
     }
 
-    /// <summary>
-    /// Eşleşen karakterlerin index'lerini bulur.
-    /// </summary>
     private List<int> FindMatchIndices()
     {
         if (slotCharacters.Count < matchCount) return new List<int>();
@@ -198,9 +176,7 @@ public class CombineZoneManager : Singleton<CombineZoneManager>
         return new List<int>();
     }
 
-    /// <summary>
-    /// Eşleşen karakterleri orta noktada birleştirir ve yok eder.
-    /// </summary>
+    //Eslesen karakterleri orta noktada birlestir ve yok et
     private void MergeCharacters(List<int> indices, System.Action onComplete)
     {
         if (indices.Count == 0)
@@ -267,9 +243,7 @@ public class CombineZoneManager : Singleton<CombineZoneManager>
         }
     }
 
-    /// <summary>
-    /// Birleştirme sonrası kalan karakterleri yeniden düzenler.
-    /// </summary>
+    //Birlestirme sonrasi kalan karakterleri yeniden duzenle
     private void ReorganizeSlots(System.Action onComplete)
     {
         if (slotCharacters.Count == 0)
@@ -316,9 +290,7 @@ public class CombineZoneManager : Singleton<CombineZoneManager>
         }
     }
 
-    /// <summary>
-    /// Combine Zone'da yer olup olmadığını kontrol eder.
-    /// </summary>
+    //Combine zoneda yer var mi kontrol et
     public bool HasEmptySlot()
     {
         if (combineGrid == null)
@@ -332,9 +304,7 @@ public class CombineZoneManager : Singleton<CombineZoneManager>
         return slotCharacters.Count < gridInfo.width;
     }
 
-    /// <summary>
-    /// Yeni karakterin yerleşeceği hedef world pozisyonunu döndürür.
-    /// </summary>
+    //Yeni karakterin yerlestirileceği hedef world pozisyonunu dondur
     public Vector3 GetTargetWorldPosition(SimpleCharacter character)
     {
         if (combineGrid == null)
@@ -346,9 +316,6 @@ public class CombineZoneManager : Singleton<CombineZoneManager>
         return combineGrid.GetWorldPosition(new Vector2Int(insertIndex, 0));
     }
 
-    /// <summary>
-    /// Mevcut slot sayısını döndürür.
-    /// </summary>
     public int GetCurrentSlotCount()
     {
         return slotCharacters.Count;

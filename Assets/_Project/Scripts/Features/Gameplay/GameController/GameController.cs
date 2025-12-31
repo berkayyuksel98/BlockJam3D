@@ -4,40 +4,24 @@ using GridAStar;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-/// <summary>
-/// Oyunun genel akışını ve kullanıcı etkileşimlerini yöneten ana kontrol sınıfı.
-/// </summary>
 public class GameController : Singleton<GameController>
 {
-    /// <summary>
-    /// Oyun başladığında gerekli event aboneliklerini başlatır.
-    /// </summary>
     private void Awake()
     {
         EventBus.Instance.Subscribe<OnCharacterClickEvent>(OnCharacterClicked);
     }
 
-    /// <summary>
-    /// Karakter tıklandığında tetiklenen olay işleyicisi.
-    /// </summary>
-    /// <param name="clickEvent">Tıklama olayı verileri.</param>
     private void OnCharacterClicked(OnCharacterClickEvent clickEvent)
     {
         CheckCharacterClick(clickEvent);
     }
 
-    /// <summary>
-    /// Nesne yok edildiğinde event aboneliklerini sonlandırır.
-    /// </summary>
     private void OnDestroy()
     {
         EventBus.Instance.Unsubscribe<OnCharacterClickEvent>(OnCharacterClicked);
     }
 
-    /// <summary>
-    /// Tıklanan karakterin hareket edip edemeyeceğini ve nereye gideceğini kontrol eder.
-    /// </summary>
-    /// <param name="clickEvent">Tıklama olayı verileri.</param>
+    //Karakterin hareket edip edemeyecegini ve nereye gidecegini kontrol eder
     private void CheckCharacterClick(OnCharacterClickEvent clickEvent)
     {
         if (!(clickEvent.character is SimpleCharacter simpleCharacter))

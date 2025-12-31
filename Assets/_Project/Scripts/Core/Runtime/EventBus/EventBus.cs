@@ -2,16 +2,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Merkezi event yönetim sistemi
-/// </summary>
 public class EventBus : Singleton<EventBus>
 {
     private Dictionary<Type, List<Delegate>> eventDictionary = new Dictionary<Type, List<Delegate>>();
 
-    /// <summary>
-    /// Bir event'e abone ol
-    /// </summary>
+    //Bir evente abone ol
     public void Subscribe<T>(Action<T> listener) where T : IGameEvent
     {
         Type eventType = typeof(T);
@@ -27,9 +22,7 @@ public class EventBus : Singleton<EventBus>
         }
     }
 
-    /// <summary>
-    /// Bir event'ten aboneliği kaldır
-    /// </summary>
+    //Bir eventten aboneligi kaldir
     public void Unsubscribe<T>(Action<T> listener) where T : IGameEvent
     {
         Type eventType = typeof(T);
@@ -45,9 +38,7 @@ public class EventBus : Singleton<EventBus>
         }
     }
 
-    /// <summary>
-    /// Bir event yayınla
-    /// </summary>
+    //Bir event yayinla
     public void Publish<T>(T gameEvent) where T : IGameEvent
     {
         Type eventType = typeof(T);
@@ -70,17 +61,11 @@ public class EventBus : Singleton<EventBus>
         }
     }
 
-    /// <summary>
-    /// Tüm event'leri temizle
-    /// </summary>
     public void ClearAll()
     {
         eventDictionary.Clear();
     }
 
-    /// <summary>
-    /// Belirli bir event tipinin tüm dinleyicilerini temizle
-    /// </summary>
     public void Clear<T>() where T : IGameEvent
     {
         Type eventType = typeof(T);
